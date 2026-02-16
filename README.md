@@ -10,8 +10,7 @@
 | Catálogo (Home) | Detalle de Película | Menú & Favoritos |
 |:---:|:---:|:---:|
 | <img src="assets/screenshots/home.jpg" width="200" alt="Pantalla de Inicio con Grid de Películas" /> | <img src="assets/screenshots/detail.jpg" width="200" alt="Detalle con Sinopsis y Calificación" /> | <img src="assets/screenshots/favorites.jpg" width="200" alt="Sección de Favoritos y Navegación" /> |
-
-*(Nota: Las imágenes son demostrativas. La interfaz se adapta a modo Vertical y Horizontal).*
+ 
 
 ---
 
