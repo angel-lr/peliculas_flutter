@@ -10,8 +10,7 @@ class MovieDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final moviesProvider = context.watch<MoviesProvider>();
-    // Obtenemos la calificación actual del usuario (0 si no ha calificado)
+    final moviesProvider = context.watch<MoviesProvider>(); 
     final int myRating = moviesProvider.getUserRating(movie.id);
 
     return Scaffold(
@@ -87,8 +86,7 @@ class MovieDetailsScreen extends StatelessWidget {
                       style: const TextStyle(fontSize: 16, height: 1.5),
                     ),
                     
-                    const SizedBox(height: 20),
-                    // Info extra
+                    const SizedBox(height: 20), 
                     Row(
                       children: [
                         const Icon(Icons.calendar_today, size: 20),

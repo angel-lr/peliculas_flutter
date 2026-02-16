@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:peliculas/providers/movies_provider.dart';
 import 'package:peliculas/models/movie.dart';
-import 'package:peliculas/screens/movie_details_screen.dart'; // Importante para la navegación
+import 'package:peliculas/screens/movie_details_screen.dart'; 
 
 class MovieGrid extends StatelessWidget {
-  // Puede recibir la lista completa (Home/Calificadas) o una lista de IDs (Favoritos/Descargas)
+ 
   final List<Movie>? moviesList; 
   final List<int>? movieIds; 
   final bool isDownloadSection;
@@ -20,21 +20,17 @@ class MovieGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final moviesProvider = context.watch<MoviesProvider>();
-    
-    // 1. Lógica para filtrar qué películas mostrar
+     
     List<Movie> moviesToShow = [];
 
-    if (moviesList != null) {
-      // Caso A: Recibimos la lista de objetos completa (Home o Calificadas)
+    if (moviesList != null) { 
       moviesToShow = moviesList!;
-    } else if (movieIds != null) {
-      // Caso B: Recibimos solo IDs (Favoritos o Descargas) -> Filtramos de la memoria
+    } else if (movieIds != null) { 
       moviesToShow = moviesProvider.movies
           .where((movie) => movieIds!.contains(movie.id))
           .toList();
     }
-
-    // 2. Estado Vacío
+ 
     if (moviesToShow.isEmpty) {
       return Center(
         child: Column(
@@ -51,7 +47,7 @@ class MovieGrid extends StatelessWidget {
       );
     }
 
-    // 3. Grid Adaptativo
+    // Grid Adaptativo
     return OrientationBuilder(
       builder: (context, orientation) {
         final int gridColumns = (orientation == Orientation.portrait) ? 2 : 4;
@@ -61,7 +57,7 @@ class MovieGrid extends StatelessWidget {
           itemCount: moviesToShow.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: gridColumns,
-            childAspectRatio: 0.65, // Relación de aspecto (Poster vertical)
+            childAspectRatio: 0.65, 
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
           ),
@@ -70,8 +66,7 @@ class MovieGrid extends StatelessWidget {
             
             final isFavorite = moviesProvider.favorites.contains(movie.id);
             final isDownloaded = moviesProvider.downloads.contains(movie.id);
-
-            // GESTURE DETECTOR: Para ir al detalle al tocar la tarjeta
+ 
             return GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -87,8 +82,7 @@ class MovieGrid extends StatelessWidget {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 child: Stack(
                   fit: StackFit.expand,
-                  children: [
-                    // --- CAPA 1: IMAGEN ---
+                  children: [ 
                     Image.network(
                       movie.imageUrl,
                       fit: BoxFit.cover,
@@ -99,8 +93,7 @@ class MovieGrid extends StatelessWidget {
                       errorBuilder: (context, error, stackTrace) => 
                           const Center(child: Icon(Icons.broken_image, color: Colors.grey)),
                     ),
-                    
-                    // --- CAPA 2: DEGRADADO NEGRO ---
+                     
                     Positioned(
                       bottom: 0,
                       left: 0,
@@ -144,8 +137,7 @@ class MovieGrid extends StatelessWidget {
                         ),
                       ),
                     ),
-
-                    // --- CAPA 3: BOTÓN FAVORITO (Arriba Derecha) ---
+ 
                     Positioned(
                       top: 5,
                       right: 5,
@@ -163,8 +155,7 @@ class MovieGrid extends StatelessWidget {
                         ),
                       ),
                     ),
-
-                    // --- CAPA 4: BOTÓN DESCARGA (Arriba Izquierda) ---
+ 
                     Positioned(
                       top: 5,
                       left: 5,

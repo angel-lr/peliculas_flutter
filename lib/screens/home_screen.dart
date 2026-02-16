@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final ratedMovies = moviesProvider.getRatedMovies();
 
     final List<Widget> views = [
-      // 0. Catálogo
+      // Catálogo
       moviesProvider.isLoading 
           ? const Center(child: CircularProgressIndicator())
           : MovieGrid(moviesList: moviesProvider.movies),
@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
       MovieGrid(movieIds: moviesProvider.favorites),
       // 2. Descargas
       MovieGrid(movieIds: moviesProvider.downloads, isDownloadSection: true),
-      // 3. NUEVA PESTAÑA: Mis Calificaciones
+      // 3. Mis Calificaciones
       MovieGrid(moviesList: ratedMovies),
     ];
 
@@ -37,8 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text(_getTitle(_currentIndex)),
         centerTitle: true,
-        actions: [
-          // Solo mostramos el botón de filtro si estamos en la pestaña de "Calificaciones" (Índice 3)
+        actions: [ 
           if (_currentIndex == 3)
             IconButton(
               icon: Icon(Icons.sort_by_alpha), // Icono de orden
@@ -57,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: views,
       ),
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed, // Necesario cuando hay mas de 3 items para que no se pongan blancos
+        type: BottomNavigationBarType.fixed,  
         currentIndex: _currentIndex,
         selectedItemColor: Colors.indigo,
         unselectedItemColor: Colors.grey,
@@ -82,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 0: return 'Catálogo OMDb';
       case 1: return 'Mis Favoritos';
       case 2: return 'Descargas';
-      case 3: return 'Mis Reseñas'; // Título nuevo
+      case 3: return 'Mis Reseñas';  
       default: return 'Películas';
     }
   }

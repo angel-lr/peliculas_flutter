@@ -1,8 +1,8 @@
 class Movie {
-  final int id;           // Antes era String imdbID
+  final int id; 
   final String title;
-  final int year;         // La API devuelve un número (1994), no un String
-  final String imageUrl;  // Antes era Poster
+  final int year;          
+  final String imageUrl;  
   final String description;
   final String genre;
   final double stars;
