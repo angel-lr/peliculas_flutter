@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:peliculas/providers/movies_provider.dart'; 
-import 'package:peliculas/widgets/movie_grid.dart';  
+import 'package:peliculas/providers/movies_provider.dart';
+import 'package:peliculas/widgets/movie_grid.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,71 +11,78 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0; // Controla qué pestaña del navbar está activa
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    // CORRECCIÓN: Escuchamos a MoviesProvider (la lógica), no al Widget
     final moviesProvider = context.watch<MoviesProvider>();
     
-    // Definimos las 3 vistas que se intercambiarán
+    // Obtenemos la lista calificada y ordenada para la 4ta pestaña
+    final ratedMovies = moviesProvider.getRatedMovies();
+
     final List<Widget> views = [
-      // VISTA 0: Inicio / Catálogo
-      // Si está cargando, muestra spinner. Si no, muestra el Grid con los objetos Movie
+      // 0. Catálogo
       moviesProvider.isLoading 
           ? const Center(child: CircularProgressIndicator())
           : MovieGrid(moviesList: moviesProvider.movies),
-
-      // VISTA 1: Favoritos
-      // Pasamos solo la lista de IDs (Strings) que están en favoritos
+      // 1. Favoritos
       MovieGrid(movieIds: moviesProvider.favorites),
-
-      // VISTA 2: Descargas
-      // Pasamos los IDs de descarga y activamos la bandera isDownloadSection
+      // 2. Descargas
       MovieGrid(movieIds: moviesProvider.downloads, isDownloadSection: true),
+      // 3. NUEVA PESTAÑA: Mis Calificaciones
+      MovieGrid(moviesList: ratedMovies),
     ];
 
     return Scaffold(
       appBar: AppBar(
         title: Text(_getTitle(_currentIndex)),
         centerTitle: true,
+        actions: [
+          // Solo mostramos el botón de filtro si estamos en la pestaña de "Calificaciones" (Índice 3)
+          if (_currentIndex == 3)
+            IconButton(
+              icon: Icon(Icons.sort_by_alpha), // Icono de orden
+              tooltip: 'Cambiar orden (Asc/Desc)',
+              onPressed: () {
+                moviesProvider.toggleSortOrder();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Orden actualizado'), duration: Duration(milliseconds: 500)),
+                );
+              },
+            )
+        ],
       ),
-      // IndexedStack mantiene el estado de las vistas (no recarga al cambiar de tab)
       body: IndexedStack(
         index: _currentIndex,
         children: views,
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed, // Necesario cuando hay mas de 3 items para que no se pongan blancos
         currentIndex: _currentIndex,
+        selectedItemColor: Colors.indigo,
+        unselectedItemColor: Colors.grey,
         onTap: (index) {
           setState(() {
             _currentIndex = index;
           });
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Inicio',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favoritos',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.download_done),
-            label: 'Descargas',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
+          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favoritos'),
+          BottomNavigationBarItem(icon: Icon(Icons.download_done), label: 'Descargas'),
+          // Nuevo item
+          BottomNavigationBarItem(icon: Icon(Icons.star), label: 'Calificadas'),
         ],
       ),
     );
   }
 
-  // Método auxiliar para cambiar el título del AppBar según la pestaña
   String _getTitle(int index) {
     switch (index) {
       case 0: return 'Catálogo OMDb';
       case 1: return 'Mis Favoritos';
       case 2: return 'Descargas';
+      case 3: return 'Mis Reseñas'; // Título nuevo
       default: return 'Películas';
     }
   }
