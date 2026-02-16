@@ -1,10 +1,14 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart'; // Usamos Dio para descargas avanzadas
+import 'package:permission_handler/permission_handler.dart';
+import 'package:peliculas/models/movie.dart';
 
 class MoviesProvider extends ChangeNotifier {
   bool isLoading = false;
-  List<dynamic> movies = []; // Por ahora son índices simulados
+  List<Movie> movies = [];
   
-  // Listas para guardar los IDs de las películas
+  // Listas de IDs (Enteros para esta API)
   final List<int> _favorites = [];
   final List<int> _downloads = [];
 
@@ -12,20 +16,30 @@ class MoviesProvider extends ChangeNotifier {
   List<int> get downloads => _downloads;
 
   MoviesProvider() {
-    getOnDisplayMovies();
+    getAllMovies();
   }
 
-  Future<void> getOnDisplayMovies() async {
+  // CARGA RÁPIDA (1 sola petición)
+  Future<void> getAllMovies() async {
     isLoading = true;
     notifyListeners();
-    await Future.delayed(const Duration(seconds: 1));
-    // Simulamos que cargamos 20 películas
-    movies = List.generate(20, (index) => index);
+    
+    try {
+      // Usamos Dio también aquí por ser más robusto
+      final response = await Dio().get('https://devsapihub.com/api-movies');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = response.data;
+        movies = data.map((item) => Movie.fromJson(item)).toList();
+      }
+    } catch (e) {
+      print('Error cargando películas: $e');
+    }
+
     isLoading = false;
     notifyListeners();
   }
 
-  // Lógica de Favoritos
   void toggleFavorite(int id) {
     if (_favorites.contains(id)) {
       _favorites.remove(id);
@@ -35,15 +49,35 @@ class MoviesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Simulación de descarga
-  Future<void> simulateDownload(int id) async {
-    // Si ya está descargada, no hacemos nada (o podrías borrarla)
-    if (_downloads.contains(id)) return;
+  // LÓGICA DE DESCARGA REAL
+  Future<bool> downloadImage(String url, String title, int id) async {
+    try {
+      // 1. Verificar Permisos (Solo necesario en Android < 13)
+      var status = await Permission.storage.status;
+      if (!status.isGranted) {
+        status = await Permission.storage.request();
+      }
 
-    // Aquí simularíamos la descarga real del archivo
-    await Future.delayed(const Duration(seconds: 2)); // Simula tiempo de espera
-    
-    _downloads.add(id);
-    notifyListeners();
+      // Si el permiso se deniega permanentemente o falla, intentamos guardar igual
+      // (En Android 13+ a veces no se necesita permiso para la carpeta pública Downloads)
+
+      // 2. Definir la ruta: Carpeta pública de Descargas
+      final String fileName = '${title.replaceAll(" ", "_")}_$id.jpg';
+      final String savePath = '/storage/emulated/0/Download/$fileName';
+
+      // 3. Descargar el archivo
+      await Dio().download(url, savePath);
+      
+      // 4. Agregamos a la lista de "Descargados" visualmente
+      if (!_downloads.contains(id)) {
+        _downloads.add(id);
+        notifyListeners();
+      }
+      return true; // Éxito
+
+    } catch (e) {
+      print('Error al descargar: $e');
+      return false; // Falló
+    }
   }
 }
