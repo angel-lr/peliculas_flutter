@@ -38,6 +38,7 @@ migrate_working_dir/
 /macos
 /windows
 /test
+/web
 
 
 # Symbolication related
